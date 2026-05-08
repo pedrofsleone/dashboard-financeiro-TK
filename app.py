@@ -26,18 +26,18 @@ st.markdown("""
     [data-baseweb="select"] input { pointer-events: none !important; caret-color: transparent !important; cursor: pointer !important; }
     [data-baseweb="select"] * { cursor: pointer !important; }
 
-    /* Tags do multiselect (Comparar com) — cor da identidade visual */
+    /* Tags do multiselect (Comparar com) — tom suave que combina com o sidebar */
     [data-testid="stSidebar"] [data-baseweb="tag"] {
-        background-color: #2563EB !important;
-        border-color: #2563EB !important;
+        background-color: #344B6E !important;
+        border-color: #455D80 !important;
     }
     [data-testid="stSidebar"] [data-baseweb="tag"] span,
     [data-testid="stSidebar"] [data-baseweb="tag"] svg {
-        color: white !important;
-        fill: white !important;
+        color: #E2E8F0 !important;
+        fill: #E2E8F0 !important;
     }
     [data-testid="stSidebar"] [data-baseweb="tag"]:hover {
-        background-color: #1D4ED8 !important;
+        background-color: #3F587E !important;
     }
 
     .kpi-card {
