@@ -445,11 +445,12 @@ if st.session_state.pagina == 0:
 
     st.markdown("<div style='margin-top:14px'></div>", unsafe_allow_html=True)
 
-    if st.session_state.comparar_lista:
-        _n_comp_ativ = len(st.session_state.comparar_lista)
+    _n_comp_ativ_g = len(st.session_state.get('multi_comparar', []))
+    if _n_comp_ativ_g > 0:
         _cb1, _cb2 = st.columns([3, 1])
         with _cb2:
-            if st.button(f"✖ Limpar comparação ({_n_comp_ativ} produtos)", use_container_width=True):
+            if st.button(f"✖ Limpar comparação ({_n_comp_ativ_g} produtos)", use_container_width=True):
+                st.session_state['multi_comparar'] = []
                 st.session_state.comparar_lista = []
                 st.rerun()
 
@@ -645,6 +646,7 @@ if st.session_state.pagina == 0:
                 st.session_state._nav_to_produto = True
                 st.session_state._nav_produto_nome = _prods_sel[0]
                 st.session_state._scroll_top = True
+                st.session_state._sync_comparar = True
                 st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -744,15 +746,13 @@ if st.session_state.pagina == 1:
     st.markdown("<div style='margin-top:14px'></div>", unsafe_allow_html=True)
 
     # Lista de produtos a comparar
-    if len(st.session_state.comparar_lista) >= 2:
-        _lista_comp = st.session_state.comparar_lista
+    if produtos_comparar:
+        _lista_comp = [produto_selecionado] + [p for p in produtos_comparar if p != produto_selecionado]
         tem_comparacao = True
         if st.sidebar.button("✖ Limpar comparação", key='btn_limpar'):
+            st.session_state['multi_comparar'] = []
             st.session_state.comparar_lista = []
             st.rerun()
-    elif produto_comparar != "— Nenhum —":
-        _lista_comp = [produto_selecionado, produto_comparar]
-        tem_comparacao = True
     else:
         _lista_comp = [produto_selecionado]
         tem_comparacao = False
