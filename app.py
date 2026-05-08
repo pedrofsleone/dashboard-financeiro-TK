@@ -232,7 +232,7 @@ with st.sidebar:
         st.stop()
 
     # Agrupa por tipo de relatório (remove o sufixo do mês ex: " - JAN.26")
-    _rel_pat = re.compile(r'^(.+?)\s*-\s*[A-Z]{3}\.\d{2}$')
+    _rel_pat = re.compile(r'^(.+?)\s*-\s*[A-Za-z]{3}\.\d{2}$')
     _grupos = {}
     for _f in _all_excel:
         _m = _rel_pat.match(_f.stem)
