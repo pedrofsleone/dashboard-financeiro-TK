@@ -30,6 +30,17 @@ st.markdown("""
     [data-baseweb="select"] input { pointer-events: none !important; caret-color: transparent !important; cursor: pointer !important; }
     [data-baseweb="select"] * { cursor: pointer !important; }
 
+    /* Foco dos inputs no conteúdo principal — usa azul-marinho da identidade */
+    .stApp input:focus,
+    .stApp textarea:focus,
+    .stApp [data-baseweb="input"]:focus-within,
+    .stApp [data-baseweb="base-input"]:focus-within {
+        border-color: #1B2B4B !important;
+        box-shadow: 0 0 0 1px #1B2B4B !important;
+        outline-color: #1B2B4B !important;
+    }
+    .stApp [data-baseweb="input"] { border-color: #CBD5E1 !important; }
+
     /* Tags do multiselect (Comparar com) — tom suave que combina com o sidebar */
     [data-testid="stSidebar"] [data-baseweb="tag"] {
         background-color: #344B6E !important;
