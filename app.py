@@ -218,18 +218,17 @@ if not st.session_state.autenticado:
     </style>
     """, unsafe_allow_html=True)
 
-    # Logo centralizado
     _lc1, _lc2, _lc3 = st.columns([1, 2, 1])
     with _lc2:
-        if _logo_path.exists():
-            st.image(str(_logo_path), use_container_width=True)
-        else:
-            st.markdown("""
-            <div class="login-logo-title">T!FERET<br>CHINEZINHO</div>
-            <div class="login-logo-sub">Dashboard Financeiro</div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("<div style='margin-top:28px'></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style='text-align:center; padding: 60px 0 32px;'>
+            <div style='font-size:2.2rem; font-weight:900; color:white; letter-spacing:6px; line-height:1.2;'>T!FERET</div>
+            <div style='font-size:2.2rem; font-weight:900; color:white; letter-spacing:6px; line-height:1.2;'>CHINEZINHO</div>
+            <div style='font-size:0.68rem; color:#7A97BB; letter-spacing:5px; text-transform:uppercase; margin-top:8px;'>DASHBOARD FINANCEIRO</div>
+            <hr style='border-color:rgba(255,255,255,0.12); margin:28px 0 0;'>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:0px'></div>", unsafe_allow_html=True)
         _senha_input = st.text_input("Senha", type="password", placeholder="Digite a senha...",
                                      label_visibility="collapsed")
         if st.button("Entrar", use_container_width=True):
