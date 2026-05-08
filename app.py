@@ -221,13 +221,18 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    data_dir = Path(__file__).parent / "data"
-    excel_files = list(data_dir.glob("*.xlsx")) + list(data_dir.glob("*.xls"))
+    _base = Path(__file__).parent
+    excel_files = sorted(
+        list((_base / "data").glob("*.xlsx")) + list((_base / "data").glob("*.xls")) +
+        list(_base.glob("*.xlsx")) + list(_base.glob("*.xls")),
+        key=lambda p: p.stat().st_mtime, reverse=True
+    )
     if not excel_files:
-        st.warning("Nenhum arquivo em `data/`.")
+        st.warning("Nenhum arquivo Excel encontrado.")
         st.stop()
 
-    selected_file = st.selectbox("Relatório", options=excel_files, format_func=lambda p: p.name)
+    selected_file = excel_files[0]  # sempre o mais recente automaticamente
+    st.markdown(f"<span style='color:#94A3B8; font-size:0.7rem;'>📄 {selected_file.name}</span>", unsafe_allow_html=True)
     df, MONTH_COLS = load_data(str(selected_file))
     MONTHS_ORDER = list(reversed(list(MONTH_COLS.keys())))
 
