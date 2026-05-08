@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -112,16 +113,7 @@ def brl(val, dec=2, sinal=False):
         return ('+' if val >= 0 else '-') + s
     return ('-' if val < 0 else '') + s
 
-MONTH_COLS = {
-    'JAN.26': 5,  'DEZ.25': 11, 'NOV.25': 17, 'OUT.25': 23,
-    'SET.25': 29, 'AGO.25': 35, 'JUL.25': 41, 'JUN.25': 47,
-    'MAI.25': 53, 'ABR.25': 59, 'MAR.25': 65, 'FEV.25': 71,
-    'JAN.25': 77, 'DEZ.24': 83, 'NOV.24': 89, 'OUT.24': 95,
-    'SET.24': 101,'AGO.24': 107,'JUL.24': 113,'JUN.24': 119,
-    'MAI.24': 125,'ABR.24': 131,'MAR.24': 137,'FEV.24': 143,
-    'JAN.24': 149,'DEZ.23': 155,
-}
-MONTHS_ORDER = list(reversed(list(MONTH_COLS.keys())))
+_MES_PAT = re.compile(r'^[A-Z]{3}\.\d{2}$')
 
 def chart_layout(**extra):
     base = dict(
@@ -137,8 +129,14 @@ def chart_layout(**extra):
 
 
 @st.cache_data
-def load_data(file_path: str) -> pd.DataFrame:
+def load_data(file_path: str):
     raw = pd.read_excel(file_path, sheet_name='Evolutivo', header=None)
+    # Detecta colunas de meses automaticamente na linha 4
+    month_cols = {
+        str(raw.iloc[4, ci]).strip(): ci
+        for ci in range(raw.shape[1])
+        if isinstance(raw.iloc[4, ci], str) and _MES_PAT.match(str(raw.iloc[4, ci]).strip())
+    }
     rows = []
     for _, row in raw.iloc[8:].iterrows():
         item_code = row[1]
@@ -152,7 +150,7 @@ def load_data(file_path: str) -> pd.DataFrame:
         except:
             dt_str = '—'
         entry = {'item': str(item_code).strip(), 'descricao': str(descricao).strip(), 'dt_ult_vda': dt_str}
-        for mes, col in MONTH_COLS.items():
+        for mes, col in month_cols.items():
             entry[f'{mes}_MAT']   = pd.to_numeric(row[col],   errors='coerce')
             entry[f'{mes}_GGF']   = pd.to_numeric(row[col+1], errors='coerce')
             entry[f'{mes}_MOB']   = pd.to_numeric(row[col+2], errors='coerce')
@@ -160,11 +158,11 @@ def load_data(file_path: str) -> pd.DataFrame:
             entry[f'{mes}_UNIT']  = pd.to_numeric(row[col+4], errors='coerce')
             entry[f'{mes}_D%']    = pd.to_numeric(row[col+5], errors='coerce')
         rows.append(entry)
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows), month_cols
 
 
 # ── Autenticação ──────────────────────────────────────────────────────────────
-SENHA_CORRETA = "chinezinho2025"
+SENHA_CORRETA = "chinezinho2026"
 
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
@@ -230,7 +228,8 @@ with st.sidebar:
         st.stop()
 
     selected_file = st.selectbox("Relatório", options=excel_files, format_func=lambda p: p.name)
-    df = load_data(str(selected_file))
+    df, MONTH_COLS = load_data(str(selected_file))
+    MONTHS_ORDER = list(reversed(list(MONTH_COLS.keys())))
 
     df_prod  = df[['item', 'descricao']].drop_duplicates().sort_values('descricao')
     produtos = df_prod['descricao'].tolist()
@@ -266,10 +265,10 @@ with st.sidebar:
     st.markdown("<span style='color:#94A3B8; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;'>Período</span>", unsafe_allow_html=True)
     col_de, col_ate = st.columns(2)
     with col_de:
-        mes_ini = st.selectbox("De", MONTHS_ORDER, index=0, label_visibility="visible")
+        _idx_ini_def = max(0, len(MONTHS_ORDER) - 12)
+        mes_ini = st.selectbox("De", MONTHS_ORDER, index=_idx_ini_def, label_visibility="visible")
     with col_ate:
-        idx_fim = min(11, len(MONTHS_ORDER) - 1)
-        mes_fim = st.selectbox("Até", MONTHS_ORDER, index=idx_fim, label_visibility="visible")
+        mes_fim = st.selectbox("Até", MONTHS_ORDER, index=len(MONTHS_ORDER) - 1, label_visibility="visible")
 
 # ── Valida período ────────────────────────────────────────────────────────────
 idx_ini = MONTHS_ORDER.index(mes_ini)
