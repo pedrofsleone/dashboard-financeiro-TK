@@ -170,27 +170,66 @@ if 'autenticado' not in st.session_state:
 if not st.session_state.autenticado:
     st.markdown("""
     <style>
-        .login-wrap {
-            max-width: 380px;
-            margin: 80px auto 0;
-            background: white;
-            border-radius: 16px;
-            padding: 40px 36px 32px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-            text-align: center;
+        /* Fundo escuro cobrindo tudo */
+        .stApp { background-color: #1B2B4B !important; }
+        header[data-testid="stHeader"] { background-color: #1B2B4B !important; border: none !important; }
+        [data-testid="stDecoration"] { display: none !important; }
+
+        .login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
         }
-        .login-title  { font-size: 1.5rem; font-weight: 900; color: #1B2B4B; margin-bottom: 4px; }
-        .login-sub    { font-size: 0.78rem; color: #64748B; margin-bottom: 28px; letter-spacing: 0.04em; text-transform: uppercase; }
+        .login-logo-title {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 6px;
+            text-align: center;
+            line-height: 1.15;
+        }
+        .login-logo-title span { color: #A8B8D0; }
+        .login-logo-sub {
+            font-size: 0.72rem;
+            color: #7A97BB;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 4px;
+            margin-bottom: 36px;
+        }
+        .login-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 32px 36px 28px;
+            width: 320px;
+            backdrop-filter: blur(8px);
+        }
+        /* Input escuro */
+        .login-card input[type="password"] {
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.18) !important;
+            color: white !important;
+            border-radius: 8px !important;
+        }
     </style>
-    <div class="login-wrap">
-        <div class="login-title">CHINEZINHO</div>
-        <div class="login-sub">Dashboard Financeiro</div>
-    </div>
     """, unsafe_allow_html=True)
 
+    # Logo centralizado
     _lc1, _lc2, _lc3 = st.columns([1, 2, 1])
     with _lc2:
-        st.markdown("<div style='margin-top:-18px'></div>", unsafe_allow_html=True)
+        if _logo_path.exists():
+            st.image(str(_logo_path), use_container_width=True)
+        else:
+            st.markdown("""
+            <div class="login-logo-title">T!FERET<br>CHINEZINHO</div>
+            <div class="login-logo-sub">Dashboard Financeiro</div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:28px'></div>", unsafe_allow_html=True)
         _senha_input = st.text_input("Senha", type="password", placeholder="Digite a senha...",
                                      label_visibility="collapsed")
         if st.button("Entrar", use_container_width=True):
