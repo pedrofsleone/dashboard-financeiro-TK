@@ -336,10 +336,9 @@ with st.sidebar:
     st.markdown("<span style='color:#94A3B8; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;'>Período</span>", unsafe_allow_html=True)
     col_de, col_ate = st.columns(2)
     with col_de:
-        _idx_ini_def = max(0, len(MONTHS_ORDER) - 12)
-        mes_ini = st.selectbox("De", MONTHS_ORDER, index=_idx_ini_def, label_visibility="visible")
+        mes_ini = st.selectbox("De", MONTHS_ORDER, index=len(MONTHS_ORDER) - 1, label_visibility="visible")
     with col_ate:
-        mes_fim = st.selectbox("Até", MONTHS_ORDER, index=len(MONTHS_ORDER) - 1, label_visibility="visible")
+        mes_fim = st.selectbox("Até", MONTHS_ORDER, index=0, label_visibility="visible")
 
 # ── Valida período ────────────────────────────────────────────────────────────
 idx_ini = MONTHS_ORDER.index(mes_ini)
