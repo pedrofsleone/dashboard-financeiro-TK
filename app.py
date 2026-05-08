@@ -397,7 +397,8 @@ if st.session_state.pagina == 0:
         line=dict(color=BLUE, width=2.5),
         marker=dict(size=6, color=BLUE),
         fill='tozeroy', fillcolor='rgba(37,99,235,0.07)',
-        hovertemplate='%{x}<br><b>Média: R$ %{y:.2f}</b><extra></extra>',
+        customdata=[f'R$ {brl(v)}' if v and pd.notna(v) else '—' for v in medias_mensais],
+        hovertemplate='%{x}<br><b>Média: %{customdata}</b><extra></extra>',
     ))
     fg1.update_layout(height=280, showlegend=False, **chart_layout())
     st.plotly_chart(fg1, use_container_width=True, config={'displayModeBar': False})
@@ -428,6 +429,8 @@ if st.session_state.pagina == 0:
                 x=_top_alta['var'], y=_top_alta['descricao'].str[:38],
                 orientation='h', marker_color=RED,
                 text=[f'+{brl(v,1)}%' for v in _top_alta['var']], textposition='auto',
+                customdata=[f'+{brl(v,2)}%' for v in _top_alta['var']],
+                hovertemplate='<b>%{y}</b><br>Variação: %{customdata}<extra></extra>',
             ))
             _ly_a = chart_layout()
             _ly_a['yaxis'] = dict(autorange='reversed', tickfont=dict(size=9, color='#0F172A'), gridcolor='#F1F5F9')
@@ -443,6 +446,8 @@ if st.session_state.pagina == 0:
                 x=_top_queda['var'], y=_top_queda['descricao'].str[:38],
                 orientation='h', marker_color=GREEN,
                 text=[f'{brl(v,1)}%' for v in _top_queda['var']], textposition='auto',
+                customdata=[f'{brl(v,2)}%' for v in _top_queda['var']],
+                hovertemplate='<b>%{y}</b><br>Variação: %{customdata}<extra></extra>',
             ))
             _ly_b = chart_layout()
             _ly_b['yaxis'] = dict(autorange='reversed', tickfont=dict(size=9, color='#0F172A'), gridcolor='#F1F5F9')
@@ -478,6 +483,8 @@ if st.session_state.pagina == 0:
             x=x5, y=top5['descricao'].str[:38],
             orientation='h', marker_color=cor5,
             text=txt5, textposition='auto',
+            customdata=txt5,
+            hovertemplate='<b>%{y}</b><br>%{customdata}<extra></extra>',
         ))
         ly5 = chart_layout()
         ly5['yaxis'] = dict(autorange='reversed', tickfont=dict(size=10, color='#0F172A'), gridcolor='#F1F5F9')
@@ -508,6 +515,8 @@ if st.session_state.pagina == 0:
             x=x6, y=top6['descricao'].str[:38],
             orientation='h', marker_color=cor6,
             text=txt6, textposition='auto',
+            customdata=txt6,
+            hovertemplate='<b>%{y}</b><br>%{customdata}<extra></extra>',
         ))
         ly6 = chart_layout()
         ly6['yaxis'] = dict(autorange='reversed', tickfont=dict(size=10, color='#0F172A'), gridcolor='#F1F5F9')
@@ -738,7 +747,8 @@ if st.session_state.pagina == 1:
                 marker=dict(size=5, color=_c),
                 fill='tozeroy' if (_i == 0 and not _usar_indice) else 'none',
                 fillcolor='rgba(37,99,235,0.07)' if _i == 0 else None,
-                hovertemplate=f'<b>{_p[:25]}</b><br>%{{x}}: {"base %{y:.1f}" if _usar_indice else "R$ %{y:.2f}"}<extra></extra>',
+                customdata=[f'R$ {brl(v)}' if v and pd.notna(v) else '—' for v in _y],
+                hovertemplate=f'<b>{_p[:25]}</b><br>%{{x}}: %{{customdata}}<extra></extra>',
             ))
         if _usar_indice:
             fig_cx.add_hline(y=100, line_dash='dot', line_color='#CBD5E1', line_width=1)
@@ -765,7 +775,8 @@ if st.session_state.pagina == 1:
                 marker=dict(size=5, color=_c),
                 fill='tozeroy' if (_i == 0 and not _usar_indice) else 'none',
                 fillcolor='rgba(27,43,75,0.07)' if _i == 0 else None,
-                hovertemplate=f'<b>{_p[:25]}</b><br>%{{x}}: {"base %{y:.1f}" if _usar_indice else "R$ %{y:.4f}"}<extra></extra>',
+                customdata=[f'R$ {brl(v, 4)}' if v and pd.notna(v) else '—' for v in _y],
+                hovertemplate=f'<b>{_p[:25]}</b><br>%{{x}}: %{{customdata}}<extra></extra>',
             ))
         if _usar_indice:
             fig_unit.add_hline(y=100, line_dash='dot', line_color='#CBD5E1', line_width=1)
@@ -857,11 +868,13 @@ if st.session_state.pagina == 1:
         _r2 = df[df['descricao'] == _p]
         if not _r2.empty:
             _d2 = [_r2.iloc[0].get(f'{m}_D%') for m in meses_sel_ord]
+            _d2_pct = [(d*100) if d else 0 for d in _d2]
             fig2.add_trace(go.Bar(
-                x=meses_sel_ord, y=[(d*100) if d else 0 for d in _d2],
+                x=meses_sel_ord, y=_d2_pct,
                 name=_p[:28],
                 marker_color=[RED if (v or 0) > 0 else GREEN for v in _d2],
-                hovertemplate='%{x}<br>Δ <b>%{y:.2f}%</b><extra></extra>',
+                customdata=[f'{brl(v,2)}%' for v in _d2_pct],
+                hovertemplate='%{x}<br>Δ <b>%{customdata}</b><extra></extra>',
             ))
     else:
         # Múltiplos produtos: barras sobrepostas, menor na frente
@@ -879,10 +892,12 @@ if st.session_state.pagina == 1:
             _d2 = [_r2.iloc[0].get(f'{m}_D%') for m in meses_sel_ord]
             _orig_i = _lista_comp.index(_p)
             _c2 = _cores_multi[_orig_i % len(_cores_multi)]
+            _d2_pct2 = [(d*100) if d else 0 for d in _d2]
             fig2.add_trace(go.Bar(
-                x=meses_sel_ord, y=[(d*100) if d else 0 for d in _d2],
+                x=meses_sel_ord, y=_d2_pct2,
                 name=_p[:28], marker_color=_c2, opacity=0.82,
-                hovertemplate=f'<b>{_p[:25]}</b><br>%{{x}}: Δ %{{y:.2f}}%<extra></extra>',
+                customdata=[f'{brl(v,2)}%' for v in _d2_pct2],
+                hovertemplate=f'<b>{_p[:25]}</b><br>%{{x}}: Δ %{{customdata}}<extra></extra>',
             ))
 
     fig2.add_hline(y=0, line_dash='dot', line_color='#94A3B8', line_width=1)
