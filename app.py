@@ -329,10 +329,29 @@ with st.sidebar:
 
     st.markdown("<div style='margin-top:8px'></div>", unsafe_allow_html=True)
     st.markdown("<span style='color:#94A3B8; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;'>Comparar com</span>", unsafe_allow_html=True)
-    _comp_sel = st.selectbox("Comparar com", ["— Nenhum —"] + opcoes_label,
-                              index=0, key='selectbox_comparar',
-                              label_visibility="collapsed")
-    produto_comparar = _comp_sel.split(' · ', 1)[1] if ' · ' in _comp_sel else "— Nenhum —"
+
+    # Aplica sync pendente vindo da tabela de Visão Geral (antes do widget renderizar)
+    if st.session_state.get('_sync_comparar'):
+        _alvo = []
+        for _p in st.session_state.comparar_lista:
+            if _p == produto_selecionado:
+                continue
+            _lbl_alvo = next((lbl for lbl in opcoes_label if lbl.split(' · ', 1)[-1] == _p), None)
+            if _lbl_alvo:
+                _alvo.append(_lbl_alvo)
+        st.session_state['multi_comparar'] = _alvo
+        st.session_state.pop('_sync_comparar', None)
+
+    # Filtra produto principal das opções de comparação (não pode comparar consigo mesmo)
+    _opc_comp = [lbl for lbl in opcoes_label if lbl.split(' · ', 1)[-1] != produto_selecionado]
+    _comp_sel_multi = st.multiselect(
+        "Comparar com",
+        options=_opc_comp,
+        key='multi_comparar',
+        label_visibility="collapsed",
+        placeholder="Selecione produtos..."
+    )
+    produtos_comparar = [s.split(' · ', 1)[1] for s in _comp_sel_multi if ' · ' in s]
 
     st.markdown("<div style='margin-top:8px'></div>", unsafe_allow_html=True)
     st.markdown("<span style='color:#94A3B8; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;'>Período</span>", unsafe_allow_html=True)
@@ -664,10 +683,8 @@ if st.session_state.pagina == 1:
     _cores_multi = [BLUE, RED, GREEN, AMBER, SKY, "#9333EA", "#F97316", "#0891B2", "#65A30D", "#DB2777"]
 
     # Precisamos de _lista_comp antes dos KPIs para saber quantos produtos há
-    if len(st.session_state.comparar_lista) >= 2:
-        _lista_comp_preview = st.session_state.comparar_lista
-    elif produto_comparar != "— Nenhum —":
-        _lista_comp_preview = [produto_selecionado, produto_comparar]
+    if produtos_comparar:
+        _lista_comp_preview = [produto_selecionado] + [p for p in produtos_comparar if p != produto_selecionado]
     else:
         _lista_comp_preview = [produto_selecionado]
 
