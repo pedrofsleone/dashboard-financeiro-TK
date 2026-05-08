@@ -222,28 +222,43 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     _base = Path(__file__).parent
-    _all_excel = sorted(
+    _all_excel = (
         list((_base / "data").glob("*.xlsx")) + list((_base / "data").glob("*.xls")) +
-        list(_base.glob("*.xlsx")) + list(_base.glob("*.xls")),
-        key=lambda p: p.stat().st_mtime, reverse=True
+        list(_base.glob("*.xlsx")) + list(_base.glob("*.xls"))
     )
     if not _all_excel:
         st.warning("Nenhum arquivo Excel encontrado.")
         st.stop()
 
-    # Agrupa por tipo de relatório (remove o sufixo do mês ex: " - JAN.26")
-    _rel_pat = re.compile(r'^(.+?)\s*-\s*[A-Za-z]{3}\.\d{2}$')
+    # Ordena pelo mês/ano extraído do nome do arquivo (ex: FEV.26 > JAN.26)
+    _MES_NUM = {'JAN':1,'FEV':2,'MAR':3,'ABR':4,'MAI':5,'JUN':6,
+                'JUL':7,'AGO':8,'SET':9,'OUT':10,'NOV':11,'DEZ':12}
+    _rel_pat = re.compile(r'^(.+?)\s*-\s*([A-Za-z]{3})\.(\d{2})$')
+
+    def _data_arquivo(p):
+        m = _rel_pat.match(p.stem)
+        if m:
+            mes = m.group(2).upper()
+            ano = int(m.group(3))
+            return (ano, _MES_NUM.get(mes, 0))
+        return (0, 0)
+
+    _all_excel = sorted(_all_excel, key=_data_arquivo, reverse=True)
+
+    # Agrupa por tipo — usa o arquivo mais recente de cada tipo
     _grupos = {}
     for _f in _all_excel:
         _m = _rel_pat.match(_f.stem)
         _tipo = _m.group(1).strip() if _m else _f.stem
         if _tipo not in _grupos:
-            _grupos[_tipo] = _f  # arquivo mais recente do tipo
+            _grupos[_tipo] = _f
 
     _tipos = list(_grupos.keys())
     _sel_tipo = st.selectbox("Relatório", _tipos)
     selected_file = _grupos[_sel_tipo]
-    st.markdown(f"<span style='color:#94A3B8; font-size:0.65rem;'>📅 {selected_file.stem.split(' - ')[-1]}</span>", unsafe_allow_html=True)
+    _mes_label = _rel_pat.match(selected_file.stem)
+    if _mes_label:
+        st.markdown(f"<span style='color:#94A3B8; font-size:0.65rem;'>📅 {_mes_label.group(2).upper()}.{_mes_label.group(3)}</span>", unsafe_allow_html=True)
     df, MONTH_COLS = load_data(str(selected_file))
     MONTHS_ORDER = list(reversed(list(MONTH_COLS.keys())))
 
