@@ -337,8 +337,10 @@ with st.sidebar:
     col_de, col_ate = st.columns(2)
     with col_de:
         mes_ini = st.selectbox("De", MONTHS_ORDER, index=len(MONTHS_ORDER) - 1, label_visibility="visible")
+    _idx_de = MONTHS_ORDER.index(mes_ini)
+    _opcoes_ate = MONTHS_ORDER[:_idx_de + 1]  # apenas meses >= De
     with col_ate:
-        mes_fim = st.selectbox("Até", MONTHS_ORDER, index=0, label_visibility="visible")
+        mes_fim = st.selectbox("Até", _opcoes_ate, index=0, label_visibility="visible")
 
 # ── Valida período ────────────────────────────────────────────────────────────
 idx_ini = MONTHS_ORDER.index(mes_ini)
