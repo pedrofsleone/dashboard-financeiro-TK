@@ -26,6 +26,20 @@ st.markdown("""
     [data-baseweb="select"] input { pointer-events: none !important; caret-color: transparent !important; cursor: pointer !important; }
     [data-baseweb="select"] * { cursor: pointer !important; }
 
+    /* Tags do multiselect (Comparar com) — cor da identidade visual */
+    [data-testid="stSidebar"] [data-baseweb="tag"] {
+        background-color: #2563EB !important;
+        border-color: #2563EB !important;
+    }
+    [data-testid="stSidebar"] [data-baseweb="tag"] span,
+    [data-testid="stSidebar"] [data-baseweb="tag"] svg {
+        color: white !important;
+        fill: white !important;
+    }
+    [data-testid="stSidebar"] [data-baseweb="tag"]:hover {
+        background-color: #1D4ED8 !important;
+    }
+
     .kpi-card {
         background: white;
         border-radius: 10px;
