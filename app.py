@@ -234,6 +234,8 @@ if not st.session_state.autenticado:
         if st.button("Entrar", use_container_width=True):
             if _senha_input == SENHA_CORRETA:
                 st.session_state.autenticado = True
+                st.session_state.pagina = 0
+                st.query_params['p'] = '0'
                 st.rerun()
             else:
                 st.error("Senha incorreta.")
