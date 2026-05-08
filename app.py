@@ -338,14 +338,15 @@ with st.sidebar:
     st.markdown("<span style='color:#94A3B8; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;'>Período</span>", unsafe_allow_html=True)
     col_de, col_ate = st.columns(2)
     # Inicializa padrão: De = mais antigo, Até = mais recente
+    # MONTHS_ORDER é oldest-first: [DEZ.23, JAN.24, ..., FEV.26]
     if 'mes_de' not in st.session_state or st.session_state['mes_de'] not in MONTHS_ORDER:
-        st.session_state['mes_de'] = MONTHS_ORDER[-1]
+        st.session_state['mes_de'] = MONTHS_ORDER[0]
     with col_de:
         mes_ini = st.selectbox("De", MONTHS_ORDER, key='mes_de', label_visibility="visible")
     _idx_de = MONTHS_ORDER.index(mes_ini)
-    _opcoes_ate = MONTHS_ORDER[:_idx_de + 1]  # apenas meses >= De
+    _opcoes_ate = MONTHS_ORDER[_idx_de:]  # apenas meses >= De
     if 'mes_ate' not in st.session_state or st.session_state['mes_ate'] not in _opcoes_ate:
-        st.session_state['mes_ate'] = _opcoes_ate[0]
+        st.session_state['mes_ate'] = _opcoes_ate[-1]
     with col_ate:
         mes_fim = st.selectbox("Até", _opcoes_ate, key='mes_ate', label_visibility="visible")
 
