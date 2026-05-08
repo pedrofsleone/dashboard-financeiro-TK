@@ -5,6 +5,10 @@ import plotly.graph_objects as go
 from pathlib import Path
 from PIL import Image
 import streamlit.components.v1 as _components
+try:
+    from st_keyup import st_keyup
+except ImportError:
+    st_keyup = None
 
 _logo_path = Path(__file__).parent / "logo.png"
 _icon = Image.open(_logo_path) if _logo_path.exists() else "📊"
@@ -614,7 +618,13 @@ if st.session_state.pagina == 0:
     # Tabela geral
     st.markdown('<div class="card-header">📋 Tabela Resumo — Todos os Produtos <span style="font-size:0.75rem; color:#64748B; font-weight:400">· selecione 1 linha para abrir o produto · selecione várias para comparar</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="card-body" style="padding:12px">', unsafe_allow_html=True)
-    busca_g = st.text_input("Filtrar produto", placeholder="Digite nome ou código...", key="busca_geral", label_visibility="collapsed")
+    if st_keyup is not None:
+        busca_g = st_keyup("Filtrar produto", placeholder="Digite nome ou código...",
+                           key="busca_geral", debounce=200, label_visibility="collapsed")
+    else:
+        busca_g = st.text_input("Filtrar produto", placeholder="Digite nome ou código...",
+                                key="busca_geral", label_visibility="collapsed")
+    busca_g = busca_g or ""
     if um_mes:
         tab_g = df_rank[['item', 'descricao', 'preco_fim']].copy()
         tab_g.columns = ['Código', 'Descrição', f'{mes_fim}']
